@@ -15,6 +15,7 @@ HA_URL = os.environ.get("HA_URL", "http://192.168.1.42:8123")
 HA_TOKEN = os.environ.get("HA_TOKEN", "")
 HA_MEDIA_PLAYER = os.environ.get("HA_MEDIA_PLAYER", "media_player.kitchen_dashboard")
 HA_TTS_ENTITY = os.environ.get("HA_TTS_ENTITY", "tts.piper")
+HA_TTS_VOICE = os.environ.get("HA_TTS_VOICE", "")
 
 
 # Audio capture settings (ReSpeaker via USB)
@@ -32,3 +33,7 @@ WAKEWORD_THRESHOLD = float(os.environ.get("WAKEWORD_THRESHOLD", "0.5"))
 # Silence detection
 SILENCE_RMS = int(os.environ.get("SILENCE_RMS", "500"))
 SILENCE_SECS = float(os.environ.get("SILENCE_SECS", "1.5"))
+
+# API server (for receiving voice selection, etc.)
+API_HOST = os.environ.get("API_HOST", "0.0.0.0")
+API_PORT = int(os.environ.get("API_PORT", "8100"))

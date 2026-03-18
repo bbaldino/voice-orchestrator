@@ -13,11 +13,12 @@ import wave
 
 import numpy as np
 import pyaudio
+from aiohttp import web
 from openwakeword.model import Model
 
 import config
 from stt import transcribe
-from output import speak
+from output import speak, get_voice, set_voice
 import leds
 
 logging.basicConfig(
@@ -119,7 +120,34 @@ async def process_utterance(audio: bytes) -> None:
         logger.warning("Tablet TTS failed: %s", e)
 
 
+async def handle_get_voice(request):
+    return web.json_response({"voice": get_voice()})
+
+
+async def handle_set_voice(request):
+    data = await request.json()
+    voice = data.get("voice", "")
+    set_voice(voice)
+    return web.json_response({"voice": voice})
+
+
+async def start_api_server():
+    """Run a small HTTP server for receiving configuration updates."""
+    app = web.Application()
+    app.router.add_get("/voice", handle_get_voice)
+    app.router.add_post("/voice", handle_set_voice)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, config.API_HOST, config.API_PORT)
+    await site.start()
+    logger.info("API server listening on %s:%d", config.API_HOST, config.API_PORT)
+    return runner
+
+
 async def main() -> None:
+    # Start API server
+    api_runner = await start_api_server()
+
     # Load wake word model
     oww = Model(
         wakeword_models=[config.WAKEWORD_MODEL],
@@ -167,6 +195,7 @@ async def main() -> None:
         stream.stop_stream()
         stream.close()
         p.terminate()
+        await api_runner.cleanup()
 
 
 if __name__ == "__main__":

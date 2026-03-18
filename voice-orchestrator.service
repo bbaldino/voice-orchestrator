@@ -1,0 +1,17 @@
+[Unit]
+Description=Voice Orchestrator (wake word + STT + TTS pipeline)
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=bbaldino
+WorkingDirectory=/home/bbaldino/voice-orchestrator
+ExecStart=/home/bbaldino/voice-orchestrator/venv/bin/python orchestrator.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

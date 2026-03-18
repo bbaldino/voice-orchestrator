@@ -168,9 +168,12 @@ async def main() -> None:
     )
 
     logger.info("Listening for wake word...")
+    loop = asyncio.get_event_loop()
     try:
         while True:
-            raw = stream.read(config.AUDIO_CHUNK, exception_on_overflow=False)
+            raw = await loop.run_in_executor(
+                None, stream.read, config.AUDIO_CHUNK, False,
+            )
             mono = np.frombuffer(to_mono(raw), dtype=np.int16)
             oww.predict(mono)
             scores = {
